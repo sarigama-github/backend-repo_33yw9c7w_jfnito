@@ -13,8 +13,9 @@ Model name is converted to lowercase for the collection name:
 
 from pydantic import BaseModel, Field
 from typing import Optional
+from datetime import datetime
 
-# Example schemas (replace with your own):
+# Example schemas (kept for reference):
 
 class User(BaseModel):
     """
@@ -38,11 +39,23 @@ class Product(BaseModel):
     category: str = Field(..., description="Product category")
     in_stock: bool = Field(True, description="Whether product is in stock")
 
-# Add your own schemas here:
-# --------------------------------------------------
+# SaaS Construction Time Tracking Schemas
 
-# Note: The Flames database viewer will automatically:
-# 1. Read these schemas from GET /schema endpoint
-# 2. Use them for document validation when creating/editing
-# 3. Handle all database operations (CRUD) directly
-# 4. You don't need to create any database endpoints!
+class Project(BaseModel):
+    name: str = Field(..., description="Project name")
+    description: Optional[str] = Field(None, description="Project description")
+    client: Optional[str] = Field(None, description="Client name")
+
+class Task(BaseModel):
+    project_id: str = Field(..., description="Related project id (stringified ObjectId)")
+    name: str = Field(..., description="Task name")
+    description: Optional[str] = Field(None, description="Task details")
+    status: str = Field("open", description="open | in_progress | done")
+
+class TimeEntry(BaseModel):
+    task_id: str = Field(..., description="Related task id (stringified ObjectId)")
+    user_id: Optional[str] = Field(None, description="User id if applicable")
+    start_time: datetime = Field(..., description="When the timer started (UTC)")
+    end_time: Optional[datetime] = Field(None, description="When the timer stopped (UTC)")
+    duration_sec: Optional[int] = Field(None, ge=0, description="Duration in seconds (computed when stopped)")
+    note: Optional[str] = Field(None, description="Optional note")
